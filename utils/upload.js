@@ -10,17 +10,18 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-async function uploadToCloudinary(imgFilePath) {
+async function uploadToCloudinary(imgFilePath, uniqueId) {
+  let imgUrl = '';
   try {
     await cloudinary.uploader
       .upload(imgFilePath, {
         folder: process.env.CLOUDINARY_IMAGES_FOLDER,
-        public_id: "user_profile_image",
+        public_id: `user_profile_image_${uniqueId}`,
         overwrite: true,
       }).then(response => {
         // imgUrl = response.url;
         fs.unlinkSync(imgFilePath);
-        return response.url;
+        imgUrl = response.url;
       }).catch(err => {
         fs.unlinkSync(imgFilePath);
         console.log("Upload Error:", err);
@@ -29,6 +30,7 @@ async function uploadToCloudinary(imgFilePath) {
     fs.unlinkSync(imgFilePath);
     console.log("Cloudinary Setup Error:", error);
   }
+  return imgUrl;
 }
 
 export { uploadToCloudinary };

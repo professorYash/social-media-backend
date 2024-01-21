@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import { uploadToCloudinary } from "../utils/upload.js";
+import { createId } from "@paralleldrive/cuid2";
 
 /* REGISTER USER */
 export const register = async (req, res) => {
@@ -18,12 +19,14 @@ export const register = async (req, res) => {
     } = req.body;
 
     const imgFilePath = req.file.path;
+    const uniqueId = createId();
 
     let imgUrl = null;
 
     if (imgFilePath) {
       // If it runs successfully then it will return the link else the error will be logged in console.
-      imgUrl = uploadToCloudinary(imgFilePath)
+      imgUrl = await uploadToCloudinary(imgFilePath, uniqueId);
+      console.log(imgUrl);
     }
 
     const salt = await bcrypt.genSalt();
@@ -34,7 +37,7 @@ export const register = async (req, res) => {
       lastName,
       email,
       password: passwordHash,
-      imgUrl,
+      picturePath: imgUrl,
       friends,
       location,
       occupation,
